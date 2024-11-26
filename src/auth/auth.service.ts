@@ -20,11 +20,10 @@ export class AuthService {
       throw new Error(`Registration failed: ${error.message}`);
     }
 
-    // Add user metadata (optional)
     await this.supabase.from('users').insert([{ id: data.user?.id, email }]);
 
     return {
-      message: 'Registration successful. Please verify your email.',
+      message: 'Registration successful. You can now log in.',
     };
   }
 
