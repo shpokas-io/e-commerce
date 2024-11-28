@@ -16,7 +16,8 @@ export class ProfileController {
     @User('sub') userId: string,
     @Body() dto: UpdateProfileDto,
   ) {
-    return this.profileService.updateProfile(userId, dto);
+    const updatedProfile = await this.profileService.updateProfile(userId, dto);
+    return { message: 'Profile updated successfully', updatedProfile };
   }
 
   @Patch('email')

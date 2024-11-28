@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { UpdateProfileDto } from './dtos/update-profile.dto';
 import { UpdateEmailDto } from './dtos/update-email.dto';
@@ -17,6 +21,10 @@ export class ProfileService {
 
     if (error) {
       throw new Error(`Failed to update profile: ${error.message}`);
+    }
+
+    if (!data || data.length === 0) {
+      throw new NotFoundException('User not found or no changes made');
     }
 
     return data[0];
