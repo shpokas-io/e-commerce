@@ -16,12 +16,18 @@ export class ProfileController {
     @User('sub') userId: string,
     @Body() dto: UpdateProfileDto,
   ) {
+    console.log('Controller: Updating Profile for User:', userId);
+    console.log('Controller: Update DTO:', dto);
+
     const updatedProfile = await this.profileService.updateProfile(userId, dto);
     return { message: 'Profile updated successfully', updatedProfile };
   }
 
   @Patch('email')
   async updateEmail(@User('sub') userId: string, @Body() dto: UpdateEmailDto) {
+    console.log('Controller: User ID from JWT:', userId);
+    console.log('Controller: Profile Update Payload:', dto);
+
     return this.profileService.updateEmail(userId, dto);
   }
 

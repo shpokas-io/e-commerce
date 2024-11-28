@@ -23,11 +23,41 @@ export class AuthService {
       throw new Error(`Registration failed: ${error.message}`);
     }
 
-    try {
-      await this.supabase.from('users').insert([{ id: data.user?.id, email }]);
-    } catch {
-      throw new Error('Failed to save user metadata the database.');
+    const userId = data.user?.id;
+    if (!userId) {
+      throw new Error('Failed to create user: Missing user ID.');
     }
+
+    console.log('Register: Inserting user into database:', {
+      id: userId,
+      email,
+    });
+
+    const { error: dbError } = await this.supabase
+      .from('users')
+      .insert([{ id: userId, email }]);
+
+    if (dbError) {
+      console.error('Register: Failed to insert user metadata:', dbError);
+      throw new Error('Failed to save user metadata in the database.');
+    }
+
+    // Re-fetch the user to ensure synchronization
+    const { data: syncedUser, error: syncError } = await this.supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (syncError || !syncedUser) {
+      console.error('Register: Failed to synchronize user:', syncError);
+      throw new Error('User registration incomplete: Synchronization issue.');
+    }
+
+    console.log(
+      'Register: User successfully created and synchronized:',
+      syncedUser,
+    );
 
     return {
       message: 'Registration successful. You can now log in.',
@@ -38,7 +68,7 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<{ access_token: string }> {
-    const { data, error } = await this.supabase.auth.signInWithPassword({
+    const { error } = await this.supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -49,11 +79,15 @@ export class AuthService {
 
     const user = await this.supabase
       .from('users')
-      .select('role')
-      .eq('id', data.user?.id)
+      .select('id, role')
+      .eq('email', email)
       .single();
 
-    const payload = { sub: data.user?.id, email, role: user.data.role };
+    if (!user.data) {
+      throw new UnauthorizedException('User metadata not found.');
+    }
+
+    const payload = { sub: user.data.id, email, role: user.data.role };
     const accessToken = this.jwtService.sign(payload);
 
     return { access_token: accessToken };
