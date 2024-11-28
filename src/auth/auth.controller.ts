@@ -2,7 +2,7 @@ import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtGuard } from '../common/guards/jwt.guard';
 import { User } from '../common/decorators/user.decorator';
-import { AuthDto } from './auth.dto';
+import { AuthDto } from './dtos/auth.dto';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
 
 @Controller('auth')
