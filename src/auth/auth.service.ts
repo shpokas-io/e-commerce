@@ -26,7 +26,7 @@ export class AuthService {
     try {
       await this.supabase.from('users').insert([{ id: data.user?.id, email }]);
     } catch {
-      throw new Error('Failed to save user metadatat the database.');
+      throw new Error('Failed to save user metadata the database.');
     }
 
     return {
