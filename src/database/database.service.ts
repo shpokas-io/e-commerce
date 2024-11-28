@@ -3,9 +3,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 
 @Injectable()
 export class DatabaseService {
-  constructor(
-    @Inject('SUPABASE_CLIENT') private readonly supabase: SupabaseClient,
-  ) {}
+  constructor(@Inject('SUPABASE_CLIENT') readonly supabase: SupabaseClient) {}
 
   async testConnection(): Promise<string> {
     const { data, error } = await this.supabase.from('pg_tables').select('*');
