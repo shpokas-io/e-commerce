@@ -42,7 +42,7 @@ export class ProfileService {
   async updatePassword(userId: string, dto: UpdatePasswordDto) {
     const { data: user, error: authError } =
       await this.databaseService.supabase.auth.signInWithPassword({
-        email: userId, // Assume the user logs in with email
+        email: userId,
         password: dto.currentPassword,
       });
 
