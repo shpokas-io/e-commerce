@@ -16,7 +16,6 @@ export class ProfileService {
     console.log('Service: Received User ID:', userId);
     console.log('Service: Received DTO:', dto);
 
-    // Ensure user exists in the database
     const { data: existingUser, error: userError } =
       await this.databaseService.supabase
         .from('users')
@@ -31,11 +30,10 @@ export class ProfileService {
 
     console.log('Service: Existing User Before Update:', existingUser);
 
-    // Proceed with the update
     const { data: updatedData, error: updateError } =
       await this.databaseService.supabase
         .from('users')
-        .update(dto)
+        .update({ name: dto.name, address: dto.address })
         .eq('id', userId)
         .select();
 
@@ -44,48 +42,52 @@ export class ProfileService {
       throw new Error(`Failed to update profile: ${updateError.message}`);
     }
 
-    // Re-fetch user to confirm changes
-    const { data: refreshedUser, error: refreshError } =
-      await this.databaseService.supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-    if (refreshError || !refreshedUser) {
-      console.error('Service: Failed to fetch updated user:', refreshError);
-      throw new NotFoundException('Failed to fetch updated user');
+    if (!updatedData || updatedData.length === 0) {
+      console.error('Service: No changes made for ID:', userId);
+      throw new NotFoundException('No changes made to the profile');
     }
 
-    console.log('Service: Profile updated successfully:', refreshedUser);
-    return refreshedUser;
+    console.log('Service: Profile updated successfully:', updatedData[0]);
+    return updatedData[0];
   }
 
   async updateEmail(userId: string, dto: UpdateEmailDto) {
-    const { data: existingUser, error: userError } =
-      await this.databaseService.supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
+    console.log('Service: Updating email for User ID:', userId);
+    console.log('Service: New Email:', dto.newEmail);
 
-    if (userError || !existingUser) {
-      console.error('Service: User not found in the database:', userError);
-      throw new NotFoundException('User not found');
+    const { error: authError } =
+      await this.databaseService.supabase.auth.admin.updateUserById(userId, {
+        email: dto.newEmail,
+      });
+
+    if (authError) {
+      console.error(
+        'Service: Error updating email in Supabase Auth:',
+        authError,
+      );
+      throw new Error(`Failed to update email: ${authError.message}`);
     }
 
-    const { error } = await this.databaseService.supabase.auth.updateUser({
-      email: dto.newEmail,
-    });
+    const { data, error } = await this.databaseService.supabase
+      .from('users')
+      .update({ email: dto.newEmail })
+      .eq('id', userId)
+      .select();
+
+    console.log('Supabase Query Response:', { data, error });
 
     if (error) {
-      throw new Error(`Failed to update email: ${error.message}`);
+      console.error('Service: Error updating email in users table:', error);
+      throw new Error(`Failed to persist email in database: ${error.message}`);
     }
 
-    return { message: 'Email updated successfully' };
+    console.log('Service: Email updated successfully:', data[0]);
+    return { message: 'Email updated successfully', updatedProfile: data[0] };
   }
 
   async updatePassword(userId: string, dto: UpdatePasswordDto) {
+    console.log('Service: Updating password for User ID:', userId);
+
     const { error: authError } =
       await this.databaseService.supabase.auth.signInWithPassword({
         email: userId,
@@ -104,6 +106,7 @@ export class ProfileService {
       throw new Error(`Failed to update password: ${error.message}`);
     }
 
+    console.log('Service: Password updated successfully for User ID:', userId);
     return { message: 'Password updated successfully' };
   }
 }

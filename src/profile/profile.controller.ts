@@ -36,6 +36,8 @@ export class ProfileController {
     @User('sub') userId: string,
     @Body() dto: UpdatePasswordDto,
   ) {
+    console.log('Controller: Updating Password for User:', userId);
+
     return this.profileService.updatePassword(userId, dto);
   }
 }

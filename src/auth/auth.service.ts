@@ -35,14 +35,13 @@ export class AuthService {
 
     const { error: dbError } = await this.supabase
       .from('users')
-      .insert([{ id: userId, email }]);
+      .insert([{ id: data.user?.id, email }]);
 
     if (dbError) {
       console.error('Register: Failed to insert user metadata:', dbError);
       throw new Error('Failed to save user metadata in the database.');
     }
 
-    // Re-fetch the user to ensure synchronization
     const { data: syncedUser, error: syncError } = await this.supabase
       .from('users')
       .select('*')
