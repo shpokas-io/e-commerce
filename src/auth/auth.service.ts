@@ -17,10 +17,17 @@ export class AuthService {
     });
 
     if (error) {
+      if (error.message.includes('User already registered')) {
+        throw new Error('A user with this email is already registered.');
+      }
       throw new Error(`Registration failed: ${error.message}`);
     }
 
-    await this.supabase.from('users').insert([{ id: data.user?.id, email }]);
+    try {
+      await this.supabase.from('users').insert([{ id: data.user?.id, email }]);
+    } catch {
+      throw new Error('Failed to save user metadatat the database.');
+    }
 
     return {
       message: 'Registration successful. You can now log in.',
@@ -37,7 +44,10 @@ export class AuthService {
     });
 
     if (error) {
-      throw new UnauthorizedException('Invalid credentials');
+      if (error.message.includes('Invalid login credentials')) {
+        throw new UnauthorizedException('Invalid email or password.');
+      }
+      throw new UnauthorizedException(`Login failed: ${error.message}`);
     }
 
     const payload = { sub: data.user?.id, email };
