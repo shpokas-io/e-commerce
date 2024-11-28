@@ -44,13 +44,16 @@ export class AuthService {
     });
 
     if (error) {
-      if (error.message.includes('Invalid login credentials')) {
-        throw new UnauthorizedException('Invalid email or password.');
-      }
-      throw new UnauthorizedException(`Login failed: ${error.message}`);
+      throw new UnauthorizedException('Invalid email or password.');
     }
 
-    const payload = { sub: data.user?.id, email };
+    const user = await this.supabase
+      .from('users')
+      .select('role')
+      .eq('id', data.user?.id)
+      .single();
+
+    const payload = { sub: data.user?.id, email, role: user.data.role };
     const accessToken = this.jwtService.sign(payload);
 
     return { access_token: accessToken };
