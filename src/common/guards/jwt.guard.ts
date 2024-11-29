@@ -23,7 +23,8 @@ export class JwtGuard implements CanActivate {
       const payload = this.jwtService.verify(token);
       request.user = payload;
       return true;
-    } catch {
+    } catch (error) {
+      console.error('JWT Verification Failed:', error.message);
       throw new UnauthorizedException('Invalid or expired JWT token');
     }
   }

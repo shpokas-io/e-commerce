@@ -83,10 +83,12 @@ export class AuthService {
       .single();
 
     if (!user.data) {
+      console.error('User metadata not found for email:', email); //debug
       throw new UnauthorizedException('User metadata not found.');
     }
 
     const payload = { sub: user.data.id, email, role: user.data.role };
+    console.log('Generated JWT Payload:', payload); //debug role problem
     const accessToken = this.jwtService.sign(payload);
 
     return { access_token: accessToken };
