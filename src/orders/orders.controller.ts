@@ -17,7 +17,7 @@ import { UpdateOrderStatusDto } from './dtos/update-order-status.dto';
 
 @UseGuards(JwtGuard)
 @Controller('orders')
-export class OrderController {
+export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
