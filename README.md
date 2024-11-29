@@ -1,6 +1,6 @@
 # Backend for e-commerce website
 
-## Work in progress
+## Work in progress BASIC STRUCTURE FINISHED
 
 ## Features at this stage
 
@@ -23,13 +23,9 @@
 
 - User/Admin roles
 
+5. Order management
+
 ## Features to be implemented
-
-1. Order management
-
-- Check stock
-- See order status shipped/pending etc.
-- current user can see his order / Admin can see all orders
 
 2. Simulate payment flow, or implement real mockup using Stripe/Paypal
 3. Wishlist/Favorites
