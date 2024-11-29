@@ -23,7 +23,7 @@
 
 - User/Admin roles
 
-## Futures to be implemented
+## Features to be implemented
 
 1. Order management
 
