@@ -13,11 +13,15 @@ import { JwtGuard } from '../common/guards/jwt.guard';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { PopulateProductsService } from './populate-products';
 
 @UseGuards(JwtGuard, RolesGuard)
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly populateProductsService: PopulateProductsService,
+  ) {}
 
   @Post()
   @Roles('admin')
@@ -40,5 +44,13 @@ export class ProductsController {
   @Roles('admin')
   deleteProduct(@Param('id') id: string) {
     return this.productsService.deleteProduct(id);
+  }
+
+  @Post('populate')
+  @Roles('admin')
+  async populatePRoducts() {
+    console.log('Admin triggered product population.');
+    await this.populateProductsService.populateProducts();
+    return { message: 'Product population completed successfully.' };
   }
 }
